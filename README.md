@@ -44,6 +44,9 @@ gugu-adventure/
 ├── vite.config.js                 # base:'./' + 可选 HTTPS dev server
 ├── public/
 │   ├── nigugu.glb                 # 角色模型（13 骨骼，5 个动画剪辑）
+│   ├── logo-mark.png              # 首屏卡片标志（透明底，277×320）
+│   ├── favicon.png                # 站点图标（透明底，256×256）
+│   ├── apple-touch-icon.png       # iOS 主屏图标（米白底，180×180）
 │   ├── targets/
 │   │   ├── nigugu.jpg             # 原始海报（识别目标底图）
 │   │   └── nigugu.mind            # 编译后的 MindAR 图像目标（415 KB）
@@ -242,6 +245,8 @@ GitHub Pages 本身是 HTTPS，摄像头权限可直接使用。
 ## 素材来源与版权
 
 - 海报与角色模型（`public/targets/nigugu.jpg`、`public/nigugu.glb`）由项目作者提供。
+- 首屏标志三件套（`public/logo-mark.png`、`public/favicon.png`、`public/apple-touch-icon.png`）
+  由作者提供的 3D 模型经 Blender EEVEE 离线渲染得到（透明底），非第三方素材。
 - 泥咕咕为河南浚县国家级非物质文化遗产，本项目为其数字化展示，非商业用途。
 - MindAR.js 遵循 MIT 许可（`public/vendor/mindar-1.2.5/LICENSE`）；Three.js MIT；nipplejs MIT。
 - 页面内所有音效均由 WebAudio 实时合成，无第三方音频素材。
