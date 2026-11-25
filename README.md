@@ -145,8 +145,12 @@ npm run build         # 产物构建
 npm run test:e2e      # Playwright 端到端（自动起静态服务器 + headless Chromium，22 项）
 npm run test:ar       # 真 AR 链路：假摄像头喂海报，跑真实 MindAR 识别（14 项）
 npm run test:pages    # GitHub Pages 子路径部署校验（12 项）
+npm run test:rotation # 屏幕旋转：摇杆尺寸跟随、相机纵横比、角色位置不跳变（16 项）
+npm run test:switch   # 页面切到后台 / 切回前台：停走、摇杆不卡住（14 项）
+npm run test:fail     # 资源与权限失败：.mind 404 / GLB 404 / 摄像头被拒（15 项）
+npm run test:mobile   # 上面三条移动端边界一起跑
 npm run test:shots    # 视觉验收截图，输出到 tests/shots-ar/
-npm run test:all      # 按序跑单测 → 构建 → E2E → 真 AR → 子路径
+npm run test:all      # 按序跑单测 → 构建 → E2E → 真 AR → 子路径 → 移动端边界
 ```
 
 E2E 用 `?mock=1` 在无摄像头环境下验证：模型载入、五个动画剪辑、
@@ -160,6 +164,16 @@ E2E 用 `?mock=1` 在无摄像头环境下验证：模型载入、五个动画�
 
 `test:pages` 把 `dist/` 挂在 `/gugu-adventure/` 前缀下起服务器，
 模拟 GitHub Pages 项目站点的子路径，确认相对路径资源全部可取。
+
+`test:rotation` / `test:switch` / `test:fail` 专门盯移动端最容易翻车的三类边界：
+
+| 测试 | 覆盖的问题 |
+| --- | --- |
+| `test:rotation` | 旋转横屏后摇杆内胆尺寸不跟随（nipplejs 把 `size` 写死在生成的 DOM 里）、相机 `aspect` 与视口不一致、旋转瞬间角色位置跳变 |
+| `test:switch` | 切到后台仍在跑循环 / 后台偷偷移动、"摇杆卡住"（回前台后 `force` 不复位）、`pagehide` 后未停走 |
+| `test:fail` | 识别目标 404（vendor 的 `addImageTargets` 用 `new Promise(async …)` 包装，fetch 失败时**永不 settle**，会卡在"正在加载图像目标…"）、GLB 404、摄像头 `NotAllowedError` |
+
+这三个测试都要求页面**没有未捕获异常**，并且错误态必须给出可读中文提示 + 重试入口。
 
 ---
 
@@ -218,7 +232,9 @@ GitHub Pages 本身是 HTTPS，摄像头权限可直接使用。
 - **识别丢失**：停止移动 + 摇杆归零 + 状态药丸变红；重新识别后恢复。
 - **触摸事件**：摇杆用 nipplejs 原生 touch/pointer 处理；按钮双绑 `touchstart` + `click` 并做 600ms 去重。
 - **摇杆卡住**：全局 `touchend/pointerup/blur/visibilitychange/pagehide` 兜底 `forceReset()`。
-- **屏幕旋转**：`orientationchange` 后延迟两次 `resize()`（200ms / 600ms），重新计算 FOV 与视频铺满偏移。
+- **屏幕旋转**：`orientationchange` 后延迟两次 `resize()`（200ms / 600ms），重新计算 FOV 与视频铺满偏移；
+  同时调 `joystick.syncSize()` 重建摇杆内胆 —— nipplejs 把 `size` 写死在生成的 DOM 里，
+  只改 CSS 变量会让色环和触点尺寸脱节（见 `test:rotation`）。
 - **页面切换**：`visibilitychange` / `pagehide` 立即停止移动并暂停主循环，回到前台恢复。
 
 ---

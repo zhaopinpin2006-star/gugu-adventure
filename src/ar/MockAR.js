@@ -49,6 +49,11 @@ export class MockAR {
     return this._tracking;
   }
 
+  /** 身份标识：压缩构建会改写类名，所以诊断/测试统一读这个字段 */
+  get kind() {
+    return 'mock';
+  }
+
   get targetAspect() {
     return this._posterAspect;
   }

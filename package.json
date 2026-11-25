@@ -15,7 +15,11 @@
     "test:ar": "node tests/ar-live.mjs",
     "test:shots": "node tests/ar-tilt.mjs",
     "test:pages": "node tests/pages-subpath.mjs",
-    "test:all": "npm test && npm run build && npm run test:e2e && npm run test:ar && npm run test:pages"
+    "test:rotation": "node tests/rotation.mjs",
+    "test:switch": "node tests/page-switch.mjs",
+    "test:fail": "node tests/resource-fail.mjs",
+    "test:mobile": "node tests/rotation.mjs && node tests/page-switch.mjs && node tests/resource-fail.mjs",
+    "test:all": "npm test && npm run build && npm run test:e2e && npm run test:ar && npm run test:pages && npm run test:mobile"
   },
   "dependencies": {
     "three": "0.160.1",

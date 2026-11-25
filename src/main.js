@@ -280,10 +280,29 @@ async function startExperience() {
   document.addEventListener('visibilitychange', onVisibility);
   window.addEventListener('pagehide', onPageHide);
   window.addEventListener('orientationchange', () => {
+    // 旋转后 CSS 的 --joystick-size 会变，摇杆 DOM 是创建时写死尺寸的，必须重建
+    setTimeout(() => syncJoystickSize(), 200);
     setTimeout(() => ar.resize && ar.resize(), 200);
+    setTimeout(() => syncJoystickSize(), 600);
     setTimeout(() => ar.resize && ar.resize(), 600);
   });
-  window.addEventListener('resize', () => ar.resize && ar.scheduleResize ? ar.scheduleResize() : ar.resize && ar.resize());
+  window.addEventListener('resize', () => {
+    if (ar.resize && ar.scheduleResize) ar.scheduleResize();
+    else if (ar.resize) ar.resize();
+    syncJoystickSize();
+  });
+}
+
+/** 摇杆 DOM 的尺寸是创建时写死的，容器尺寸变了就得让它跟上。 */
+function syncJoystickSize() {
+  const joystick = state.joystick;
+  if (joystick && typeof joystick.syncSize === 'function') {
+    try {
+      joystick.syncSize();
+    } catch (err) {
+      console.warn('[gugu] 摇杆尺寸同步失败', err);
+    }
+  }
 }
 
 function onVisibility() {

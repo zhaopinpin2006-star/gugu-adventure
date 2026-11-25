@@ -66,7 +66,9 @@ export function createJoystick({ zone, onChange, size = 132, deadzone = 0.12 } =
   const input = { x: 0, y: 0, force: 0 };
   const notify = typeof onChange === 'function' ? onChange : null;
   const deadZone = normalizeDeadzone(deadzone);
-  const diameter = typeof size === 'number' && Number.isFinite(size) && size > 0 ? size : 132;
+  const initialDiameter = typeof size === 'number' && Number.isFinite(size) && size > 0 ? size : 132;
+  /** 当前 nipple 的实际直径。屏幕旋转后 CSS 会改 --joystick-size，需要跟着重建。 */
+  let diameter = initialDiameter;
 
   let enabled = true;
   let destroyed = false;
@@ -191,7 +193,7 @@ export function createJoystick({ zone, onChange, size = 132, deadzone = 0.12 } =
 
   // ---------------------------------------------------------------- 装配
 
-  function createCollection() {
+  function createCollection(currentDiameter) {
     // zone 可能为 null（index.html 里 #joystick-zone 尚未就绪），此时退化为空摇杆
     if (!zone || typeof zone.appendChild !== 'function') return null;
     if (typeof document === 'undefined' || typeof document.createElement !== 'function') return null;
@@ -200,7 +202,7 @@ export function createJoystick({ zone, onChange, size = 132, deadzone = 0.12 } =
         zone,
         mode: 'static',
         position: { left: '50%', top: '50%' },
-        size: diameter,
+        size: currentDiameter,
         color: '#F5EBDC',
         restJoystick: true,
         restOpacity: 0.5,
@@ -219,6 +221,33 @@ export function createJoystick({ zone, onChange, size = 132, deadzone = 0.12 } =
       if (typeof console !== 'undefined' && console.warn) console.warn('[Joystick] 创建摇杆失败：', err);
       return null;
     }
+  }
+
+  /**
+   * 让摇杆跟上容器的当前尺寸。
+   *
+   * nipplejs 把 size 写死进生成的 DOM（.back/.front 的 width/height 都是像素）。
+   * 屏幕旋转后 CSS 的 @media 会把 --joystick-size 改小，但已生成的 DOM 不会跟着变，
+   * 结果就是摇杆视觉溢出色环、触点与视觉错位。这里按容器实测尺寸重建一次。
+   */
+  function syncSize() {
+    if (destroyed || !zone) return;
+    // 用 clientWidth 而不是 getBoundingClientRect：底盘有 1px 边框，
+    // 初建时 main.js 传的也是 clientWidth（内容盒），这里必须用同一把尺子，
+    // 否则重建出来的 nipple 会比色环大 2px 而溢出去。
+    const measured = Math.round(zone.clientWidth);
+    if (!Number.isFinite(measured) || measured <= 0) return;
+    if (Math.abs(measured - diameter) < 2) return;
+
+    diameter = measured;
+    // 重建前先归零并清掉旧 DOM，避免残留空摇杆叠在同一个 zone 里
+    applyInput(0, 0, 0, true);
+    try {
+      if (collection && typeof collection.destroy === 'function') collection.destroy();
+    } catch (err) {
+      /* 旧实例销毁失败不影响重建 */
+    }
+    collection = createCollection(diameter);
   }
 
   function addListener(target, type, handler, options) {
@@ -255,7 +284,7 @@ export function createJoystick({ zone, onChange, size = 132, deadzone = 0.12 } =
     listeners.length = 0;
   }
 
-  collection = createCollection();
+  collection = createCollection(diameter);
   bindGlobalResets();
 
   function destroy() {
@@ -272,7 +301,7 @@ export function createJoystick({ zone, onChange, size = 132, deadzone = 0.12 } =
     collection = null;
   }
 
-  return { input, destroy, forceReset, setEnabled };
+  return { input, destroy, forceReset, setEnabled, syncSize };
 }
 
 export default createJoystick;

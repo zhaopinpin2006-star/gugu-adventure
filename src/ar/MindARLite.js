@@ -91,6 +91,11 @@ export class MindARLite {
     return this._tracking;
   }
 
+  /** 身份标识：压缩构建会改写类名，所以诊断/测试统一读这个字段 */
+  get kind() {
+    return 'mindar';
+  }
+
   /** 海报高/宽（竖版 >1） */
   get targetAspect() {
     return this._posterAspect;
@@ -273,6 +278,42 @@ export class MindARLite {
     return '摄像头启动失败：' + (err && err.message ? err.message : String(err));
   }
 
+  /**
+   * 加载识别目标文件（.mind）。
+   *
+   * 为什么不直接用 controller.addImageTargets(url)：
+   *   vendor 里的实现是 `new Promise(async (resolve) => { const buf = await (await fetch(url)).arrayBuffer(); ... })`
+   *   —— async 执行体里一旦抛错（404 响应体不是合法 msgpack、网络中断等），
+   *   错误只会变成一个未处理的 rejection，**外层 Promise 永远不会 settle**，
+   *   于是 ar.start() 一直挂着、界面停在"正在加载图像目标…"，用户完全不知道发生了什么。
+   * 所以这里自己 fetch：先判 HTTP 状态，再交给包内公开的 addImageTargetsFromBuffer 解析。
+   */
+  async _loadImageTargets(url) {
+    let response;
+    try {
+      response = await fetch(url, { cache: 'no-cache' });
+    } catch (e) {
+      throw new Error('网络请求失败：' + (e && e.message));
+    }
+    if (!response.ok) {
+      throw new Error('服务器返回 HTTP ' + response.status + (response.status === 404 ? '（文件不存在）' : ''));
+    }
+    let buffer;
+    try {
+      buffer = await response.arrayBuffer();
+    } catch (e) {
+      throw new Error('读取文件内容失败：' + (e && e.message));
+    }
+    if (!buffer || buffer.byteLength < 12) {
+      throw new Error('文件内容为空或过短（' + (buffer ? buffer.byteLength : 0) + ' 字节）');
+    }
+    try {
+      return this.controller.addImageTargetsFromBuffer(buffer);
+    } catch (e) {
+      throw new Error('目标文件格式不正确（' + (e && e.message) + '）');
+    }
+  }
+
   async _startAR() {
     const url = this.controllerUrl
       ? this.controllerUrl
@@ -323,7 +364,7 @@ export class MindARLite {
     const targetSrc = this.imageTargetSrc;
     let result;
     try {
-      result = await this.controller.addImageTargets(targetSrc);
+      result = await this._loadImageTargets(targetSrc);
     } catch (e) {
       throw new Error('图像目标加载失败（' + targetSrc + '）：' + (e && e.message));
     }
