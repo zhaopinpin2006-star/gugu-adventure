@@ -245,6 +245,8 @@ GitHub Pages 本身是 HTTPS，摄像头权限可直接使用。
 ## 素材来源与版权
 
 - 海报与角色模型（`public/targets/nigugu.jpg`、`public/nigugu.glb`）由项目作者提供。
+- 首屏标志（`public/logo-mark.png` 等三个 png）由作者提供的 3D 模型用 Blender 5.2 EEVEE
+  离线渲染得到（三盏面光 + 低强度冷调世界光，`film_transparent` 出 RGBA），非手绘。
 - 首屏标志三件套（`public/logo-mark.png`、`public/favicon.png`、`public/apple-touch-icon.png`）
   由作者提供的 3D 模型经 Blender EEVEE 离线渲染得到（透明底），非第三方素材。
 - 泥咕咕为河南浚县国家级非物质文化遗产，本项目为其数字化展示，非商业用途。
