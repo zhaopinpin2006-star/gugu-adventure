@@ -1,0 +1,27 @@
+{
+  "name": "gugu-adventure",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:http": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview",
+    "target": "node scripts/compile-target.mjs",
+    "cert": "python scripts/gen-cert.py",
+    "test": "node --test tests/movement.test.mjs",
+    "test:e2e": "node tests/e2e.mjs",
+    "test:ar": "node tests/ar-live.mjs",
+    "test:shots": "node tests/ar-tilt.mjs",
+    "test:all": "npm test && npm run build && npm run test:e2e && npm run test:ar"
+  },
+  "dependencies": {
+    "three": "0.160.1",
+    "nipplejs": "0.10.2"
+  },
+  "devDependencies": {
+    "vite": "6.4.1",
+    "playwright": "1.56.1"
+  }
+}

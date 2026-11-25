@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#211A18" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="description" content="咕咕奇遇记 —— 非遗泥咕咕 WebAR 角色操控小游戏" />
+  <title>咕咕奇遇记 · 泥咕咕 WebAR</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="apple-touch-icon" href="favicon.svg" />
+  <link rel="stylesheet" href="/src/style/main.css" />
+</head>
+<body>
+  <!-- 摄像头画面 + three.js 画布都挂在这里 -->
+  <div id="ar-container" aria-hidden="true"></div>
+
+  <!-- 叠加层 UI -->
+  <div id="hud">
+    <!-- 顶部状态 -->
+    <div id="status-pill" data-kind="scan" role="status" aria-live="polite">
+      <span id="status-dot" aria-hidden="true"></span>
+      <span id="status-text">正在准备…</span>
+    </div>
+
+    <!-- 提示条 / toast -->
+    <div id="hint-bar" role="alert" aria-live="assertive"></div>
+
+    <!-- 右上角声音开关 -->
+    <button id="btn-sound" type="button" aria-label="开关声音" aria-pressed="true" data-on="true">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+        <path d="M4 9.5h3.2L12 5.4v13.2L7.2 14.5H4z" fill="currentColor" />
+        <path id="sound-wave-1" d="M15.4 8.6a4.6 4.6 0 0 1 0 6.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+        <path id="sound-wave-2" d="M18 6.2a8 8 0 0 1 0 11.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+        <path id="sound-slash" d="M15.5 9.5l5 5M20.5 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+      </svg>
+    </button>
+
+    <!-- 左下角虚拟摇杆 -->
+    <div id="joystick-zone" aria-label="移动摇杆，按住拖动控制泥咕咕行走" role="application">
+      <span class="joy-ornament" aria-hidden="true"></span>
+    </div>
+
+    <!-- 右下角按钮 -->
+    <button id="btn-recenter" type="button" aria-label="重新定位海报">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
+        <circle cx="12" cy="12" r="3.4" fill="none" stroke="currentColor" stroke-width="1.8" />
+        <path d="M12 2.6v3.2M12 18.2v3.2M2.6 12h3.2M18.2 12h3.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+        <path d="M6.2 6.2l2 2M17.8 6.2l-2 2M6.2 17.8l2-2M17.8 17.8l-2-2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".7" />
+      </svg>
+    </button>
+    <button id="btn-jump" type="button" aria-label="让泥咕咕跳一下">
+      <span class="jump-label">跳</span>
+      <span class="jump-ornament" aria-hidden="true"></span>
+    </button>
+
+    <!-- 全屏遮罩：首屏 / 权限 / 错误 -->
+    <div id="overlay" data-kind="start" hidden>
+      <div id="overlay-card" role="dialog" aria-modal="true" aria-labelledby="overlay-title">
+        <div id="overlay-icon" aria-hidden="true"></div>
+        <div id="overlay-title">咕咕奇遇记</div>
+        <p id="overlay-desc">对准泥咕咕海报，摇杆带它四处走走。</p>
+        <div id="progress" class="is-hidden">
+          <div id="progress-bar"></div>
+          <span id="progress-text">0%</span>
+        </div>
+        <button id="btn-start" type="button">开始奇遇</button>
+        <div id="overlay-foot">河南浚县 · 泥咕咕（国家级非物质文化遗产）</div>
+      </div>
+    </div>
+
+    <div id="flash" aria-hidden="true"></div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+  <noscript>
+    <div style="position:fixed;inset:0;display:grid;place-items:center;background:#211A18;color:#F5EBDC;font-family:sans-serif;text-align:center;padding:24px;">
+      这个页面需要启用 JavaScript 才能开启 AR 奇遇。
+    </div>
+  </noscript>
+</body>
+</html>
