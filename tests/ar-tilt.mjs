@@ -59,6 +59,13 @@ page.on('pageerror', (e) => console.log('[pageerror]', String(e).slice(0, 200)))
 try {
   await page.goto(`http://127.0.0.1:${PORT}/`, { waitUntil: 'load', timeout: 30000 });
   await page.waitForSelector('#btn-start', { state: 'visible' });
+  // 首屏标志是位图（logo-mark.png），且带 icon-pop 入场动画（延迟 120ms + 560ms）。
+  // 截图要反映稳定态，否则拍到 opacity:0 的那一帧，看起来像"没有图标"。
+  await page.waitForFunction(() => {
+    const img = document.querySelector('#overlay-icon img');
+    return !!img && img.complete && img.naturalWidth > 0;
+  }, { timeout: 15000 });
+  await page.waitForTimeout(900);
   await page.screenshot({ path: join(OUT, 'T0-start.png') });
   await page.click('#btn-start');
   await page.waitForFunction(() => window.__GUGU__ && window.__GUGU__.ar && window.__GUGU__.ar.isTracking === true, { timeout: 90000 });

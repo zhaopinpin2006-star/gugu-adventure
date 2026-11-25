@@ -54,7 +54,20 @@ function toggleClass(node, name, on) {
   else node.classList.remove(name);
 }
 
-/** 内联 SVG 图标（无外部图片），按 kind 取不同图形 */
+/** 首屏标志：Blender 渲染的透明底 PNG（public/logo-mark.png，277×320） */
+const LOGO_MARK_FILE = 'logo-mark.png';
+
+/**
+ * 取标志图片的绝对地址。
+ * 用 document.baseURI 而不是写死 '/'，部署到 GitHub Pages 子路径时也能正确解析
+ * （与 MockAR 里取 targets/nigugu.jpg 的方式一致）。
+ */
+function logoMarkUrl() {
+  if (typeof document === 'undefined' || !document.baseURI) return LOGO_MARK_FILE;
+  return new URL(LOGO_MARK_FILE, document.baseURI).href;
+}
+
+/** 图标标记，按 kind 取不同图形 */
 function overlayIconMarkup(kind) {
   const k = kind || 'info';
   if (k === 'error') {
@@ -83,15 +96,12 @@ function overlayIconMarkup(kind) {
       '</svg>'
     );
   }
-  // 默认 / track：泥咕咕小鸟剪影
+  // 默认 / track / start：泥咕咕标志（Blender 渲染的透明底位图，alpha 通道已抠净，
+  // 卡片米白底上直接透出卡片背景，不再有白底方块）
   return (
-    '<svg viewBox="0 0 64 64" width="100%" height="100%" aria-hidden="true" focusable="false">' +
-    '<path d="M14 44 C10 34 16 22 28 20 C34 19 38 16 40 11 C44 14 46 19 45 23 C50 26 52 31 51 36 L56 39 L49 41 C47 50 38 55 28 54 C20 53 16 50 14 44 Z" ' +
-    'fill="#1B7A8C" stroke="#F5EBDC" stroke-width="2.4" stroke-linejoin="round"/>' +
-    '<circle cx="42" cy="22" r="2.6" fill="#211A18"/>' +
-    '<path d="M46 25 L52 27 L46 29 Z" fill="#D8382F"/>' +
-    '<path d="M22 36 C26 32 32 32 36 36 C32 40 26 40 22 36 Z" fill="#F2C230" opacity="0.95"/>' +
-    '</svg>'
+    '<img src="' +
+    logoMarkUrl() +
+    '" alt="" aria-hidden="true" focusable="false" decoding="async" draggable="false" />'
   );
 }
 

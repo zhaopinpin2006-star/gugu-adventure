@@ -680,9 +680,16 @@ svg {
   animation: icon-pop 560ms 120ms var(--ease-back) forwards;
 }
 
-#overlay-icon svg {
+/* 图标既可能是内联 SVG，也可能是位图标志（logo-mark.png）。
+   位图用 object-fit: contain 保证不变形：容器是正方形，图是 277×320 的竖版。 */
+#overlay-icon svg,
+#overlay-icon img {
   width: 100%;
   height: 100%;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 @keyframes icon-pop {

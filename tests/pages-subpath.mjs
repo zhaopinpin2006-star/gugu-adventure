@@ -160,7 +160,14 @@ async function main() {
 
   // 资源是否真的按子路径取到（显式再验证一遍，不只看有没有报错）
   const assets = await page.evaluate(async () => {
-    const urls = ['targets/nigugu.mind', 'nigugu.glb', 'vendor/mindar-1.2.5/mindar-image.prod.js', 'favicon.svg'];
+    const urls = [
+      'targets/nigugu.mind',
+      'nigugu.glb',
+      'vendor/mindar-1.2.5/mindar-image.prod.js',
+      'favicon.png',
+      'apple-touch-icon.png',
+      'logo-mark.png',
+    ];
     const out = {};
     for (const u of urls) {
       try {
