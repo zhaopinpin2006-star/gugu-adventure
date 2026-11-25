@@ -14,7 +14,8 @@
     "test:e2e": "node tests/e2e.mjs",
     "test:ar": "node tests/ar-live.mjs",
     "test:shots": "node tests/ar-tilt.mjs",
-    "test:all": "npm test && npm run build && npm run test:e2e && npm run test:ar"
+    "test:pages": "node tests/pages-subpath.mjs",
+    "test:all": "npm test && npm run build && npm run test:e2e && npm run test:ar && npm run test:pages"
   },
   "dependencies": {
     "three": "0.160.1",

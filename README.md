@@ -140,15 +140,26 @@ dir = right * jx + up * jy
 ## 测试
 
 ```bash
-npm test            # 纯逻辑单测（移动学）
-npm run build       # 产物构建
-npm run test:e2e    # Playwright 端到端（自动起静态服务器 + headless Chromium）
-npm run test:all    # 上面三件事按序全跑
+npm test              # 纯逻辑单测（移动学，19 项）
+npm run build         # 产物构建
+npm run test:e2e      # Playwright 端到端（自动起静态服务器 + headless Chromium，22 项）
+npm run test:ar       # 真 AR 链路：假摄像头喂海报，跑真实 MindAR 识别（14 项）
+npm run test:pages    # GitHub Pages 子路径部署校验（12 项）
+npm run test:shots    # 视觉验收截图，输出到 tests/shots-ar/
+npm run test:all      # 按序跑单测 → 构建 → E2E → 真 AR → 子路径
 ```
 
 E2E 用 `?mock=1` 在无摄像头环境下验证：模型载入、五个动画剪辑、
 摇杆位移 / 步态切换 / 边界裁剪 / 松手回中、识别丢失停止移动、
 特效挂载、HUD 状态、跳跃与重新定位。
+
+`test:ar` 不打 mock：它 monkey-patch `getUserMedia`，用 canvas 合成一段
+"桌面平放海报、手机斜上方俯看"的假摄像头画面，交给**真实 MindAR** 做识别，
+因此能验证图像目标文件、锚点位姿、Y-up 与图像平面轴向转换、脚底贴面、
+识别丢失与恢复这些只有真链路才暴露的问题。
+
+`test:pages` 把 `dist/` 挂在 `/gugu-adventure/` 前缀下起服务器，
+模拟 GitHub Pages 项目站点的子路径，确认相对路径资源全部可取。
 
 ---
 
@@ -172,7 +183,20 @@ npm run target      # node scripts/compile-target.mjs，输出 public/targets/ni
 2. 仓库 Settings → Pages → Source 选 **GitHub Actions**。
 3. 推送即自动跑 `npm ci` → `npm test` → `npm run build` → 部署 `dist`。
 
-因为 `vite.config.js` 里 `base: './'`，产物在 `/仓库名/` 这样的子路径下也能正常工作。
+因为 `vite.config.js` 里 `base: './'`，产物在 `/仓库名/` 这样的子路径下也能正常工作
+（`npm run test:pages` 就是本地模拟这个子路径做的回归）。
+
+推送到远端：
+
+```bash
+# 首次：在 GitHub 上新建空仓库后
+git remote add origin https://github.com/<你的用户名>/<仓库名>.git
+git push -u origin main
+```
+
+> **关于 HTTPS**：GitHub Pages 默认提供 HTTPS，所以部署后手机可以直接用
+> `https://<用户名>.github.io/<仓库名>/` 打开 —— 后置摄像头要求安全上下文，
+> 这一点正好满足。本地调试才需要用 `npm run cert` 生成自签证书。
 GitHub Pages 本身是 HTTPS，摄像头权限可直接使用。
 
 ---
